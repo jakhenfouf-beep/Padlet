@@ -1,0 +1,30 @@
+name: React to Mario on Padlet
+
+on:
+  workflow_dispatch:
+
+jobs:
+  react:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+      - name: Run bot
+        env:
+          PADLET_URL: ${{ secrets.PADLET_URL }}
+          PADLET_PASSWORD: ${{ secrets.PADLET_PASSWORD }}
+          SEARCH_TEXT: mario
+          REACTION: like
+        run: npm start
+      - name: Upload failure screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-screenshot
+          path: failure.png
+          if-no-files-found: ignore
